@@ -1,0 +1,14 @@
+{
+  "name": "discord-shop-bot",
+  "version": "1.0.0",
+  "description": "paypay対応のbot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^2.2.0",
+    "discord-api-types": "^0.37.119",
+    "discord.js": "^14.14.1"
+  }
+}
