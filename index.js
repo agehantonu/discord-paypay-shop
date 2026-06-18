@@ -10,33 +10,61 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers]
 });
 client.on('messageCreate', message => antispam.monitorSpam(message));
-client.once('ready', async () => {
-    console.log(${client.user.tag}起動しました`);
+client.once('clientReady', async () => {
+    console.log(`${client.user.tag}起動しました`);
     const commands = [
         new SlashCommandBuilder().setName('paypaylogin').setDescription('PayPayログイン'),
         new SlashCommandBuilder().setName('paypayout').setDescription('PayPay連携解除'),
-        new SlashCommandBuilder().setName('antispam').setDescription('荒らし対策ON/OFF').addBooleanOption(o => o.setName('status').setRequired(true)),
+        new SlashCommandBuilder().setName('antispam').setDescription('荒らし対策ON/OFF')
+            .addBooleanOption(o => o.setName('status').setDescription('有効にするか指定').setRequired(true)),
         new SlashCommandBuilder().setName('antispam_status').setDescription('荒らし対策の状態確認'),
-        new SlashCommandBuilder().setName('antispam_bypass').setDescription('荒らし対策の対象外ロール').addRoleOption(o => o.setName('role').setRequired(true)),
-        new SlashCommandBuilder().setName('set_buylog').setDescription('購入完了ログのチャンネル設定').addChannelOption(o => o.setName('channel').setRequired(true)),
-        new SlashCommandBuilder().setName('vm_create').setDescription('新規自販機作成').addStringOption(o => o.setName('name').setRequired(true)).addChannelOption(o => o.setName('channel').setRequired(true)),
-        new SlashCommandBuilder().setName('vm_delete').setDescription('自販機を丸ごと削除').addStringOption(o => o.setName('name').setRequired(true)),
-        new SlashCommandBuilder().setName('vm_add_product').setDescription('商品登録・上書き').addStringOption(o => o.setName('vm_name').setRequired(true)).addStringOption(o => o.setName('name').setRequired(true)).addIntegerOption(o => o.setName('price').setRequired(true)).addStringOption(o => o.setName('content').setRequired(true)).addIntegerOption(o => o.setName('stock').setRequired(true)).addRoleOption(o => o.setName('role')),
-        new SlashCommandBuilder().setName('vm_delete_product').setDescription('商品削除').addStringOption(o => o.setName('vm_name').setRequired(true)).addStringOption(o => o.setName('name').setRequired(true)),
-        new SlashCommandBuilder().setName('vm_add_stock').setDescription('指定商品の在庫を追加').addStringOption(o => o.setName('vm_name').setRequired(true)).addStringOption(o => o.setName('name').setRequired(true)).addIntegerOption(o => o.setName('amount').setRequired(true)),
-        new SlashCommandBuilder().setName('vm_take_stock').setDescription('指定商品の在庫を引き出す').addStringOption(o => o.setName('vm_name').setRequired(true)).addStringOption(o => o.setName('name').setRequired(true)).addIntegerOption(o => o.setName('amount').setRequired(true)),
-        new SlashCommandBuilder().setName('deploy_vending').setDescription('自販機パネル設置').addStringOption(o => o.setName('name').setRequired(true)),
-        new SlashCommandBuilder().setName('deploy_free').setDescription('無料配布パネルを設置').addStringOption(o => o.setName('prize').setRequired(true)).addStringOption(o => o.setName('content').setRequired(true)),
-        new SlashCommandBuilder().setName('giveaway_reroll').setDescription('プレゼントの再抽選').addStringOption(o => o.setName('prize_name').setRequired(true)),
-        new SlashCommandBuilder().setName('coupon_create').setDescription('値引きクーポンを発行').addIntegerOption(o => o.setName('discount').setRequired(true)),
+        new SlashCommandBuilder().setName('antispam_bypass').setDescription('荒らし対策の対象外ロール')
+            .addRoleOption(o => o.setName('role').setDescription('対象外にするロール').setRequired(true)),
+        new SlashCommandBuilder().setName('set_buylog').setDescription('購入完了ログのチャンネル設定')
+            .addChannelOption(o => o.setName('channel').setDescription('設定するチャンネル').setRequired(true)),
+        new SlashCommandBuilder().setName('vm_create').setDescription('新規自販機作成')
+            .addStringOption(o => o.setName('name').setDescription('自販機の名前').setRequired(true))
+            .addChannelOption(o => o.setName('channel').setDescription('設置するチャンネル').setRequired(true)),
+        new SlashCommandBuilder().setName('vm_delete').setDescription('自販機を丸ごと削除')
+            .addStringOption(o => o.setName('name').setDescription('削除する自販機の名前').setRequired(true)),
+        new SlashCommandBuilder().setName('vm_add_product').setDescription('商品登録・上書き')
+            .addStringOption(o => o.setName('vm_name').setDescription('自販機の名前').setRequired(true))
+            .addStringOption(o => o.setName('name').setDescription('商品名').setRequired(true))
+            .addIntegerOption(o => o.setName('price').setDescription('価格').setRequired(true))
+            .addStringOption(o => o.setName('content').setDescription('商品の内容物').setRequired(true))
+            .addIntegerOption(o => o.setName('stock').setDescription('初期在庫数').setRequired(true))
+            .addRoleOption(o => o.setName('role').setDescription('付与するロール（任意）').setRequired(false)),
+        new SlashCommandBuilder().setName('vm_delete_product').setDescription('商品削除')
+            .addStringOption(o => o.setName('vm_name').setDescription('自販機の名前').setRequired(true))
+            .addStringOption(o => o.setName('name').setDescription('削除する商品名').setRequired(true)),
+        new SlashCommandBuilder().setName('vm_add_stock').setDescription('指定商品の在庫を追加')
+            .addStringOption(o => o.setName('vm_name').setDescription('自販機の名前').setRequired(true))
+            .addStringOption(o => o.setName('name').setDescription('商品名').setRequired(true))
+            .addIntegerOption(o => o.setName('amount').setDescription('追加する数量').setRequired(true)),
+        new SlashCommandBuilder().setName('vm_take_stock').setDescription('指定商品の在庫を引き出す')
+            .addStringOption(o => o.setName('vm_name').setDescription('自販機の名前').setRequired(true))
+            .addStringOption(o => o.setName('name').setDescription('商品名').setRequired(true))
+            .addIntegerOption(o => o.setName('amount').setDescription('引き出す数量').setRequired(true)),
+        new SlashCommandBuilder().setName('deploy_vending').setDescription('自販機パネル設置')
+            .addStringOption(o => o.setName('name').setDescription('設置する自販機の名前').setRequired(true)),
+        new SlashCommandBuilder().setName('deploy_free').setDescription('無料配布パネルを設置')
+            .addStringOption(o => o.setName('prize').setDescription('景品名').setRequired(true))
+            .addStringOption(o => o.setName('content').setDescription('配布する内容物').setRequired(true)),
+        new SlashCommandBuilder().setName('giveaway_reroll').setDescription('プレゼントの再抽選')
+            .addStringOption(o => o.setName('prize_name').setDescription('景品名').setRequired(true)),
+        new SlashCommandBuilder().setName('coupon_create').setDescription('値引きクーポンを発行')
+            .addIntegerOption(o => o.setName('discount').setDescription('値引き額').setRequired(true)),
         new SlashCommandBuilder().setName('coupon_list').setDescription('有効なクーポンの一覧を表示'),
-        new SlashCommandBuilder().setName('coupon_delete').setDescription('指定のクーポンコードを削除').addStringOption(o => o.setName('code').setRequired(true))
+        new SlashCommandBuilder().setName('coupon_delete').setDescription('指定のクーポンコードを削除')
+            .addStringOption(o => o.setName('code').setDescription('削除するクーポンコード').setRequired(true))
     ].map(cmd => cmd.toJSON());
     const rest = new REST({ version: '10' }).setToken(CONFIG.token);
     try {
         await rest.put(Routes.applicationCommands(client.user.id), { body: commands });
         console.log('コマンド登録終わったよ');
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 });
 client.on('interactionCreate', async interaction => {
     if (interaction.isChatInputCommand()) {
