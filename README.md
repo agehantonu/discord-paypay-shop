@@ -1,1 +1,1 @@
-# discord-paypay-shop
+shop鯖
