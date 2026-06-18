@@ -1,6 +1,6 @@
 {
     "token": "お前のbottoken",
-    "antiSpamEnabled": false,
+    "antiSpamEnabled": true,
     "bypassRoleId": null,
     "buyLogChannel": null
 }
