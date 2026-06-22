@@ -6,14 +6,17 @@ const shop = require('./src/shop');
 const antispam = require('./src/antispam');
 const coupons = require('./src/coupons');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'json/config.json'), 'utf8'));
+
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers]
 });
+
 client.on('messageCreate', message => antispam.monitorSpam(message));
-client.once('clientReady', async () => {
-    console.log(`${client.user.tag}起動しました`);
+
+client.once('ready', async () => {
+    console.log(`${client.user.tag} 起動しました`);
     const commands = [
-        new SlashCommandBuilder().setName('paypaylogin').setDescription('PayPayログイン'),
+        new SlashCommandBuilder().setName('paypaylogin').setDescription('PayPayアカウント連携（電話番号＋パスワード）'),
         new SlashCommandBuilder().setName('paypayout').setDescription('PayPay連携解除'),
         new SlashCommandBuilder().setName('antispam').setDescription('荒らし対策ON/OFF')
             .addBooleanOption(o => o.setName('status').setDescription('有効にするか指定').setRequired(true)),
@@ -58,14 +61,16 @@ client.once('clientReady', async () => {
         new SlashCommandBuilder().setName('coupon_delete').setDescription('指定のクーポンコードを削除')
             .addStringOption(o => o.setName('code').setDescription('削除するクーポンコード').setRequired(true))
     ].map(cmd => cmd.toJSON());
+
     const rest = new REST({ version: '10' }).setToken(CONFIG.token);
     try {
         await rest.put(Routes.applicationCommands(client.user.id), { body: commands });
-        console.log('コマンド登録終わったよ');
+        console.log('コマンド登録完了');
     } catch (e) {
-        console.error(e);
+        console.error('コマンド登録エラー:', e);
     }
 });
+
 client.on('interactionCreate', async interaction => {
     if (interaction.isChatInputCommand()) {
         const { commandName } = interaction;
@@ -98,4 +103,5 @@ client.on('interactionCreate', async interaction => {
         if (interaction.customId.startsWith('claim_')) return shop.handleClaim(interaction);
     }
 });
+
 client.login(CONFIG.token);
